@@ -1,71 +1,28 @@
-let users = [
-  {
-    id: "1",
-    userid: "apple",
-    password: "1111",
-    name: "김사과",
-    email: "apple@apple.com",
-    url: "",
-  },
-  {
-    id: "2",
-    userid: "banana",
-    password: "1111",
-    name: "반하나",
-    email: "banana@banana.com",
-    url: "",
-  },
-  {
-    id: "3",
-    userid: "orange",
-    password: "1111",
-    name: "오렌지",
-    email: "orange@orange.com",
-    url: "",
-  },
-  {
-    id: "4",
-    userid: "melon",
-    password: "1111",
-    name: "이메론",
-    email: "melon@melon.com",
-    url: "",
-  },
-  {
-    id: "5",
-    userid: "cherry",
-    password: "1111",
-    name: "채리",
-    email: "cherry@cherry.com",
-    url: "",
-  },
-];
+import { useVirtualId } from "../db/database.mjs";
+import mongoose from "mongoose";
 
-export async function createUser(userid, password, name, email) {
-  const user = {
-    id: Date.now().toString(),
-    userid,
-    password,
-    name,
-    email,
-    url: "",
-  };
-  users = [user, ...users];
-  return users;
-}
+const userSchema = new mongoose.Schema(
+  {
+    userid: { type: String, required: true },
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    password: { type: String, required: true },
+    url: String,
+  },
+  { versionKey: false },
+);
 
-export async function login(userid, password) {
-  const user = users.find(
-    (user) => user.userid === userid && user.password === password,
-  );
-  return user;
+useVirtualId(userSchema);
+const User = mongoose.model("User", userSchema);
+
+export async function createUser(user) {
+  return new User(user).save().then((data) => data.id);
 }
 
 export async function findByUserid(userid) {
-  const user = users.find((user) => user.userid === userid);
-  return user;
+  return User.findOne({ userid });
 }
 
 export async function findById(id) {
-  return users.find((user) => user.id === id);
+  return User.findById(id);
 }
